@@ -16,18 +16,18 @@ CREATE TABLE IF NOT EXISTS Temperature (
 conn.commit()
 
 # Insert sample data
+# Insert sample data stream
+data_stream = [
+    ('2024-11-22 12:01:00', 22.55, '1'),
+    ('2024-11-22 12:05:00', 23.10, '2'),
+    ('2024-11-22 12:10:00', 21.95, '1')
+]
 
-
-cursor.execute("""
-select * from Temperature
-""")
-
-rows = cursor.fetchall()
-
-# Print results
-for row in rows:
-    print(row)
-
+cursor.executemany("""
+INSERT INTO Temperature (Time, Temperature, DeviceID)
+VALUES (?, ?, ?)
+""", data_stream)
+conn.commit()
 
 # Close the connection
 conn.close()
