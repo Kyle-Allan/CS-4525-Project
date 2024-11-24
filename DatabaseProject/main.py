@@ -15,19 +15,40 @@ CREATE TABLE IF NOT EXISTS Temperature (
 """)
 conn.commit()
 
-# Insert sample data
 # Insert sample data stream
 data_stream = [
-    ('2024-11-22 12:01:00', 22.55, '1'),
-    ('2024-11-22 12:05:00', 23.10, '2'),
-    ('2024-11-22 12:10:00', 21.95, '1')
+    ('2024-11-22 12:11:00', 28.57, '3'),
+    ('2024-11-22 12:12:00', 29.50, '4'),
+    ('2024-11-22 12:13:00', 41.45, '21')
 ]
 
+'''
 cursor.executemany("""
 INSERT INTO Temperature (Time, Temperature, DeviceID)
 VALUES (?, ?, ?)
 """, data_stream)
 conn.commit()
+'''
+
+# Search for a specific timestamp
+timestamp = '2024-11-22 12:00:00'
+cursor.execute("SELECT * FROM Temperature WHERE Time = ?", (timestamp,))
+result = cursor.fetchall()
+print('Exact Time')
+print(result)
+
+# Range query
+start_time = '2024-11-22 12:00:00'
+end_time = '2024-11-22 12:10:00'
+cursor.execute("""
+SELECT * FROM Temperature
+WHERE Time BETWEEN ? AND ?
+""", (start_time, end_time))
+results = cursor.fetchall()
+
+print('Range')
+for row in results:
+    print(row)
 
 # Close the connection
 conn.close()
