@@ -48,11 +48,11 @@ class BplusTree:
             node1.check_leaf = True
             node1.parent = old_node.parent
             mid = int(math.ceil(old_node.order / 2)) - 1
-            node1.values = old_node.values[mid + 1:]
-            node1.keys = old_node.keys[mid + 1:]
+            node1.values = old_node.values[mid:]
+            node1.keys = old_node.keys[mid:]
             node1.nextKey = old_node.nextKey
-            old_node.values = old_node.values[:mid + 1]
-            old_node.keys = old_node.keys[:mid + 1]
+            old_node.values = old_node.values[:mid]
+            old_node.keys = old_node.keys[:mid]
             old_node.nextKey = node1
             self.insert_in_parent(old_node, node1.values[0], node1)
 
