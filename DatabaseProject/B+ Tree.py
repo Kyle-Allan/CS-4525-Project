@@ -48,11 +48,11 @@ class BplusTree:
             node1.check_leaf = True
             node1.parent = old_node.parent
             mid = int(math.ceil(old_node.order / 2)) - 1
-            node1.values = old_node.values[mid:]
-            node1.keys = old_node.keys[mid:]
+            node1.values = old_node.values[mid + 1:]
+            node1.keys = old_node.keys[mid + 1:]
             node1.nextKey = old_node.nextKey
-            old_node.values = old_node.values[:mid]
-            old_node.keys = old_node.keys[:mid]
+            old_node.values = old_node.values[:mid + 1]
+            old_node.keys = old_node.keys[:mid + 1]
             old_node.nextKey = node1
             self.insert_in_parent(old_node, node1.values[0], node1)
 
@@ -122,35 +122,39 @@ class BplusTree:
                     self.insert_in_parent(parentNode, value_, parentdash)
 
 # Print the tree
-def print_tree(self):
-    current_level_nodes = [self.root]
-    next_level_nodes = []
-    level = 0
+def printTree(tree):
+    lst = [tree.root]
+    level = [0]
+    leaf = None
+    flag = 0
+    lev_leaf = 0
 
-    while current_level_nodes:
-        print(f"Level {level}: ", end="")
-        for node in current_level_nodes:
-            if node is not None:
-                print(f"{node.values} |", end=" ")
-                if not node.check_leaf:
-                    next_level_nodes.extend(node.keys)
-            else:
-                print("[None] |", end=" ")
-        print()
-        current_level_nodes = next_level_nodes
-        next_level_nodes = []
-        level += 1
+    node1 = Node(str(level[0]) + str(tree.root.values))
+
+    while (len(lst) != 0):
+        x = lst.pop(0)
+        lev = level.pop(0)
+        if (x.check_leaf == False):
+            for i, item in enumerate(x.keys):
+                print(item.values)
+        else:
+            for i, item in enumerate(x.keys):
+                print(item.values)
+            if (flag == 0):
+                lev_leaf = lev
+                leaf = x
+                flag = 1
 
 
 record_len = 3
 bplustree = BplusTree(record_len)
-bplustree.insert('1', '1')
-bplustree.insert('2', '2')
-bplustree.insert('3', '3')
-bplustree.insert('4', '4')
-bplustree.insert('5', '5')
+bplustree.insert('5', '33')
+bplustree.insert('15', '21')
+bplustree.insert('25', '31')
+bplustree.insert('35', '41')
+bplustree.insert('45', '10')
 
-print_tree(bplustree)
+printTree(bplustree)
 
 if(bplustree.find('5', '34')):
     print("Found")
