@@ -1,5 +1,6 @@
-import math
+from flask import Flask, request, jsonify
 from datetime import datetime
+import math
 
 # Node creation
 class Node:
@@ -11,19 +12,17 @@ class Node:
         self.parent = None
         self.check_leaf = False
 
-    # Insert at the leaf
-    def insert_at_leaf(self, leaf, value, key):
-        if (self.values):
-            temp1 = self.values
-            for i in range(len(temp1)):
-                if (value == temp1[i]):
+    def insert_at_leaf(self, value, key):
+        if self.values:
+            for i in range(len(self.values)):
+                if value == self.values[i]:
                     self.keys[i].append(key)
                     break
-                elif (value < temp1[i]):
+                elif value < self.values[i]:
                     self.values = self.values[:i] + [value] + self.values[i:]
                     self.keys = self.keys[:i] + [[key]] + self.keys[i:]
                     break
-                elif (i + 1 == len(temp1)):
+                elif i + 1 == len(self.values):
                     self.values.append(value)
                     self.keys.append([key])
                     break
@@ -32,19 +31,16 @@ class Node:
             self.keys = [[key]]
 
 
-# B plus tree
 class BplusTree:
     def __init__(self, order):
         self.root = Node(order)
         self.root.check_leaf = True
 
-    # Insert operation
     def insert(self, value, key):
-        value = str(value)
         old_node = self.search(value)
-        old_node.insert_at_leaf(old_node, value, key)
+        old_node.insert_at_leaf(value, key)
 
-        if (len(old_node.values) == old_node.order):
+        if len(old_node.values) == old_node.order:
             node1 = Node(old_node.order)
             node1.check_leaf = True
             node1.parent = old_node.parent
@@ -57,37 +53,43 @@ class BplusTree:
             old_node.nextKey = node1
             self.insert_in_parent(old_node, node1.values[0], node1)
 
-    # Search operation for different operations
     def search(self, value):
         current_node = self.root
-        while(current_node.check_leaf == False):
-            temp2 = current_node.values
-            for i in range(len(temp2)):
-                if (value == temp2[i]):
+        while not current_node.check_leaf:
+            for i in range(len(current_node.values)):
+                if value == current_node.values[i]:
                     current_node = current_node.keys[i + 1]
                     break
-                elif (value < temp2[i]):
+                elif value < current_node.values[i]:
                     current_node = current_node.keys[i]
                     break
-                elif (i + 1 == len(current_node.values)):
+                elif i + 1 == len(current_node.values):
                     current_node = current_node.keys[i + 1]
                     break
         return current_node
 
-    # Find the node
-    def find(self, value, key):
-        l = self.search(value)
-        for i, item in enumerate(l.values):
-            if item == value:
-                if key in l.keys[i]:
-                    return True
-                else:
-                    return False
-        return False
+    def retrieve_between_dates(self, start_date, end_date):
+        """
+        Retrieve all entries between two datetime values (inclusive).
+        """
+        result = []
+        current_node = self.root
 
-    # Inserting at the parent
+        # Traverse to the leftmost leaf node
+        while not current_node.check_leaf:
+            current_node = current_node.keys[0]  # Go to the leftmost child
+
+        # Traverse leaf nodes and collect entries within the range
+        while current_node:
+            for i, value in enumerate(current_node.values):
+                if start_date <= value <= end_date:
+                    result.append((value, current_node.keys[i]))
+            current_node = current_node.nextKey  # Move to the next linked leaf node
+
+        return result
+
     def insert_in_parent(self, n, value, ndash):
-        if (self.root == n):
+        if self.root == n:
             rootNode = Node(n.order)
             rootNode.values = [value]
             rootNode.keys = [n, ndash]
@@ -97,109 +99,83 @@ class BplusTree:
             return
 
         parentNode = n.parent
-        temp3 = parentNode.keys
-        for i in range(len(temp3)):
-            if (temp3[i] == n):
-                parentNode.values = parentNode.values[:i] + \
-                    [value] + parentNode.values[i:]
-                parentNode.keys = parentNode.keys[:i +
-                                                  1] + [ndash] + parentNode.keys[i + 1:]
-                if (len(parentNode.keys) > parentNode.order):
+        for i in range(len(parentNode.keys)):
+            if parentNode.keys[i] == n:
+                parentNode.values = parentNode.values[:i] + [value] + parentNode.values[i:]
+                parentNode.keys = parentNode.keys[:i + 1] + [ndash] + parentNode.keys[i + 1:]
+                if len(parentNode.keys) > parentNode.order:
                     parentdash = Node(parentNode.order)
                     parentdash.parent = parentNode.parent
                     mid = int(math.ceil(parentNode.order / 2)) - 1
                     parentdash.values = parentNode.values[mid + 1:]
                     parentdash.keys = parentNode.keys[mid + 1:]
                     value_ = parentNode.values[mid]
-                    if (mid == 0):
-                        parentNode.values = parentNode.values[:mid + 1]
-                    else:
-                        parentNode.values = parentNode.values[:mid]
+                    parentNode.values = parentNode.values[:mid]
                     parentNode.keys = parentNode.keys[:mid + 1]
                     for j in parentNode.keys:
                         j.parent = parentNode
                     for j in parentdash.keys:
                         j.parent = parentdash
                     self.insert_in_parent(parentNode, value_, parentdash)
-
-# Print the tree
-def printTree(tree):
-    lst = [tree.root]
-    level = [0]
-    leaf = None
-    flag = 0
-    lev_leaf = 0
-
-    node1 = Node(str(level[0]) + str(tree.root.values))
-
-    while (len(lst) != 0):
-        x = lst.pop(0)
-        lev = level.pop(0)
-        if (x.check_leaf == False):
-            for i, item in enumerate(x.keys):
-                print(item.values)
-        else:
-            for i, item in enumerate(x.keys):
-                print(item.values)
-            if (flag == 0):
-                lev_leaf = lev
-                leaf = x
-                flag = 1
+                return
 
 
-def retrieve_between_dates(tree, start_date, end_date):
+# Initialize Flask app and B+ tree
+app = Flask(__name__)
+bplustree = BplusTree(order=4)  # Initialize B+ tree with order 4
+
+
+@app.route('/insert', methods=['POST'])
+def insert():
     """
-    Retrieve all entries between two datetime values (inclusive).
-
-    :param tree: The B+ Tree instance.
-    :param start_date: The start datetime (inclusive).
-    :param end_date: The end datetime (inclusive).
-    :return: A list of (value, key) tuples that fall within the range.
+    Insert a key-value pair into the B+ tree.
     """
-    if not isinstance(start_date, datetime) or not isinstance(end_date, datetime):
-        raise ValueError("Both start_date and end_date must be datetime objects.")
-
-    result = []
-    current_node = tree.root
-
-    # Traverse to the leftmost leaf node
-    while not current_node.check_leaf:
-        current_node = current_node.keys[0]  # Go to the leftmost child
-
-    # Traverse leaf nodes and collect entries within the range
-    while current_node:
-        for i, value in enumerate(current_node.values):
-            for key in current_node.keys[i]:
-                if start_date <= key <= end_date:
-                    result.append((value, key))
-        current_node = current_node.nextKey  # Move to the next linked leaf node
-
-    return result
+    data = request.get_json()
+    try:
+        value = data['value']
+        key = datetime.strptime(data['key'], "%Y-%m-%d %H:%M:%S")
+        bplustree.insert(key, value)
+        return jsonify({"message": "Inserted successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
-record_len = 3
-bplustree = BplusTree(record_len)
-bplustree.insert('1', datetime(2023, 12, 1, 12, 0, 0))
-bplustree.insert('2', datetime(2023, 12, 2, 12, 0, 0))
-bplustree.insert('3', datetime(2023, 12, 3, 12, 0, 0))
-bplustree.insert('4', datetime(2023, 12, 4, 12, 0, 0))
-bplustree.insert('5', datetime(2023, 12, 5, 12, 0, 0))
+@app.route('/search', methods=['GET'])
+def search():
+    """
+    Search for a specific key in the B+ tree.
+    """
+    key_str = request.args.get('key')
+    try:
+        key = datetime.strptime(key_str, "%Y-%m-%d %H:%M:%S")
+        node = bplustree.search(key)
+        for i, value in enumerate(node.values):
+            if value == key:
+                return jsonify({"key": key_str, "values": node.keys[i]}), 200
+        return jsonify({"message": "Key not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
-if(bplustree.find('3', datetime(2023, 12, 3, 12, 0, 0))):
-    print("Found")
-else:
-    print("Not found")
+@app.route('/retrieve_between', methods=['GET'])
+def retrieve_between():
+    """
+    Retrieve all entries between two datetime values.
+    """
+    start_str = request.args.get('start')
+    end_str = request.args.get('end')
+    try:
+        start_date = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+        end_date = datetime.strptime(end_str, "%Y-%m-%d %H:%M:%S")
+        result = bplustree.retrieve_between_dates(start_date, end_date)
+        formatted_result = [{"value": value, "key": [key.strftime("%Y-%m-%d %H:%M:%S") for key in keys]} for value, keys in result]
+        return jsonify(formatted_result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
+@app.route("/")
+def home():
+    return "Hello, Flask!"
 
-# Define the range
-start = datetime(2023, 12, 2, 12, 0, 0)
-end = datetime(2023, 12, 4, 12, 0, 0)
-
-# Retrieve entries between the range
-entries = retrieve_between_dates(bplustree, start, end)
-
-# Print the results
-print("Entries between dates:")
-for value, key in entries:
-    print(f"Value: {value}, Key: {key}")
+if __name__ == '__main__':
+    app.run(debug=True)
