@@ -9,7 +9,8 @@ CORS(app)  # Enable CORS
 data_list = [
     {"id": 1, "value": "Apple"},
     {"id": 2, "value": "Banana"},
-    {"id": 3, "value": "Cherry"}
+    {"id": 3, "value": "Cherry"},
+    {"id": 4, "value": "Orange"}
 ]
 
 @app.route("/")
