@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insert into List</title>
+    <title>Insert and View List</title>
 </head>
 <body>
     <h1>Insert into List</h1>
@@ -16,10 +16,48 @@
     </form>
     <p id="response"></p>
 
+    <h2>All Data</h2>
+    <table border="1" id="dataTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dynamic data rows will be inserted here -->
+        </tbody>
+    </table>
+
     <script>
         const form = document.getElementById('dataForm');
         const responseParagraph = document.getElementById('response');
+        const dataTable = document.getElementById('dataTable').querySelector('tbody');
 
+        // Function to fetch and display all data
+        async function fetchData() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/list');
+                const data = await response.json();
+
+                // Clear the existing rows
+                dataTable.innerHTML = '';
+
+                // Add new rows
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.id}</td><td>${item.value}</td>`;
+                    dataTable.appendChild(row);
+                });
+            } catch (error) {
+                responseParagraph.innerText = 'Error fetching data: ' + error.message;
+            }
+        }
+
+        // Fetch data on page load
+        window.onload = fetchData;
+
+        // Handle form submission
         form.addEventListener('submit', async (e) => {
             e.preventDefault(); // Prevent the form from refreshing the page
 
@@ -37,6 +75,9 @@
 
                 const result = await response.json();
                 responseParagraph.innerText = JSON.stringify(result, null, 2);
+
+                // Refresh the displayed data
+                fetchData();
             } catch (error) {
                 responseParagraph.innerText = 'Error: ' + error.message;
             }
