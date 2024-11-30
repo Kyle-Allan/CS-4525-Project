@@ -1,5 +1,5 @@
 import math
-
+from datetime import datetime
 
 # Node creation
 class Node:
@@ -147,16 +147,59 @@ def printTree(tree):
                 flag = 1
 
 
+def retrieve_between_dates(tree, start_date, end_date):
+    """
+    Retrieve all entries between two datetime values (inclusive).
+
+    :param tree: The B+ Tree instance.
+    :param start_date: The start datetime (inclusive).
+    :param end_date: The end datetime (inclusive).
+    :return: A list of (value, key) tuples that fall within the range.
+    """
+    if not isinstance(start_date, datetime) or not isinstance(end_date, datetime):
+        raise ValueError("Both start_date and end_date must be datetime objects.")
+
+    result = []
+    current_node = tree.root
+
+    # Traverse to the leftmost leaf node
+    while not current_node.check_leaf:
+        current_node = current_node.keys[0]  # Go to the leftmost child
+
+    # Traverse leaf nodes and collect entries within the range
+    while current_node:
+        for i, value in enumerate(current_node.values):
+            for key in current_node.keys[i]:
+                if start_date <= key <= end_date:
+                    result.append((value, key))
+        current_node = current_node.nextKey  # Move to the next linked leaf node
+
+    return result
+
+
 record_len = 3
 bplustree = BplusTree(record_len)
-bplustree.insert('2', '2')
-bplustree.insert('6', '6')
-bplustree.insert('7', '7')
-bplustree.insert('8', '8')
-bplustree.insert('10', '10')
+bplustree.insert('1', datetime(2023, 12, 1, 12, 0, 0))
+bplustree.insert('2', datetime(2023, 12, 2, 12, 0, 0))
+bplustree.insert('3', datetime(2023, 12, 3, 12, 0, 0))
+bplustree.insert('4', datetime(2023, 12, 4, 12, 0, 0))
+bplustree.insert('5', datetime(2023, 12, 5, 12, 0, 0))
 
 
-if(bplustree.find('10', '10')):
+if(bplustree.find('3', datetime(2023, 12, 3, 12, 0, 0))):
     print("Found")
 else:
     print("Not found")
+
+
+# Define the range
+start = datetime(2023, 12, 2, 12, 0, 0)
+end = datetime(2023, 12, 4, 12, 0, 0)
+
+# Retrieve entries between the range
+entries = retrieve_between_dates(bplustree, start, end)
+
+# Print the results
+print("Entries between dates:")
+for value, key in entries:
+    print(f"Value: {value}, Key: {key}")
