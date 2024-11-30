@@ -1,5 +1,6 @@
 import math
 
+
 # Node creation
 class Node:
     def __init__(self, order):
@@ -148,15 +149,14 @@ def printTree(tree):
 
 record_len = 3
 bplustree = BplusTree(record_len)
-bplustree.insert('5', '33')
-bplustree.insert('15', '21')
-bplustree.insert('25', '31')
-bplustree.insert('35', '41')
-bplustree.insert('45', '10')
+bplustree.insert('2', '2')
+bplustree.insert('6', '6')
+bplustree.insert('7', '7')
+bplustree.insert('8', '8')
+bplustree.insert('10', '10')
 
-printTree(bplustree)
 
-if(bplustree.find('5', '34')):
+if(bplustree.find('10', '10')):
     print("Found")
 else:
     print("Not found")
