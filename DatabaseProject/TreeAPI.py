@@ -34,6 +34,22 @@ def query():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/search', methods=['GET'])
+def search():
+    try:
+        # Get the exact time from query parameters
+        exact_time = datetime.fromisoformat(request.args.get('time'))
+
+        # Retrieve the value for the exact time
+        result = bplustree.retrieve(exact_time)
+
+        if result is not None:
+            return jsonify({'time': exact_time.isoformat(), 'result': result}), 200
+        else:
+            return jsonify({'message': 'No data found for the specified time'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 @app.route('/delete', methods=['POST'])
 def delete():
     try:
