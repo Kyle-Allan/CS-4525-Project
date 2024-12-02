@@ -405,10 +405,10 @@ if __name__ == '__main__':
     print('Initializing B+ tree...')
 
     # Initialize the B+-tree
-    bplustree = BPlusTree(order=5)
+    bplustree = BPlusTree(order=100)
 
     # Load data from the CSV file
-    csv_file = "data_15000.csv"  # Ensure this file exists and matches your schema
+    csv_file = "data_150000.csv"  # Ensure this file exists and matches your schema
 
     with open(csv_file, mode="r") as file:
         reader = csv.DictReader(file)
@@ -420,11 +420,11 @@ if __name__ == '__main__':
 
     end_time = time.time()  # End timing
 
-    print(f"B+-tree populated with 15,000 rows in {end_time - start_time:.2f} seconds.")
+    print(f"B+-tree populated with 150 000 rows in {end_time - start_time:.2f} seconds.")
 
     # Define the range
     start_time = datetime.fromisoformat("2024-01-01T00:00:00")
-    end_time = datetime.fromisoformat("2024-01-02T00:10:00")
+    end_time = datetime.fromisoformat("2024-01-03T00:10:00")
 
     # Measure query execution time
     start = time.time()

@@ -24,7 +24,7 @@ conn.commit()
 
 '''
 # Insert data from CSV
-with open("data_15000.csv", mode="r") as file:
+with open("data_150000.csv", mode="r") as file:
     reader = csv.DictReader(file)
     # Measure insertion time
     start_time = time.time()  # Start the timer
@@ -33,6 +33,7 @@ with open("data_15000.csv", mode="r") as file:
 
 conn.commit()  # Commit changes to the database
 end_time = time.time()  # Stop the timer
+print(f"SQL populated with 150 000 rows in {end_time - start_time:.2f} seconds.")
 '''
 
 # Search for a specific timestamp
@@ -44,7 +45,7 @@ print(result)
 
 # Define the range
 start_time = "2024-01-01T00:00:00"
-end_time = "2024-01-02T00:10:00"
+end_time = "2024-01-03T00:00:00"
 
 # Measure query execution time
 start = time.time()
