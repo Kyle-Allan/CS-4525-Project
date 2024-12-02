@@ -35,6 +35,13 @@ conn.commit()  # Commit changes to the database
 end_time = time.time()  # Stop the timer
 '''
 
+# Search for a specific timestamp
+timestamp = '2024-01-01T02:18:12'
+cursor.execute("SELECT * FROM Temperature WHERE Time = ?", (timestamp,))
+result = cursor.fetchall()
+print('Exact Time')
+print(result)
+
 # Define the range
 start_time = "2024-01-01T00:00:00"
 end_time = "2024-01-02T00:10:00"
