@@ -15,7 +15,8 @@ Influenced a lot by:
 from __future__ import annotations
 from math import ceil, floor
 from datetime import datetime
-
+import time
+import csv
 
 class Node:
     uid_counter = 0
@@ -402,22 +403,21 @@ class BPlusTree(object):
 
 if __name__ == '__main__':
     print('Initializing B+ tree...')
+
+    # Initialize the B+-tree
     bplustree = BPlusTree(order=5)
 
-    bplustree.insert(datetime(2024, 12, 2, 12, 0, 00), '1')
-    bplustree.insert(datetime(2024, 12, 2, 12, 1, 00), '2')
-    bplustree.insert(datetime(2024, 12, 2, 12, 2, 00), '3')
-    bplustree.insert(datetime(2024, 12, 2, 12, 3, 00), '4')
-    bplustree.insert(datetime(2024, 12, 2, 12, 4, 00), '5')
+    # Load data from the CSV file
+    csv_file = "data_15000.csv"  # Ensure this file exists and matches your schema
 
-    # Insert example keys and values into the B+ tree
-    bplustree.insert(datetime(2024, 12, 2, 12, 5, 00), '6')
-    bplustree.insert(datetime(2024, 12, 2, 12, 6, 00), '7')
+    with open(csv_file, mode="r") as file:
+        reader = csv.DictReader(file)
+        start_time = time.time()  # Start timing
+        for row in reader:
+            time_key = datetime.fromisoformat(row["time"])
+            temperature = float(row["temperature"])
+            bplustree.insert(time_key, temperature)
 
-    # Perform a range query
-    start_time = datetime(2024, 12, 2, 12, 1, 00)
-    end_time = datetime(2024, 12, 2, 12, 4, 00)
-    results = bplustree.range_query(start_time, end_time)
+    end_time = time.time()  # End timing
 
-    # Display results
-    print("Range Query Results:", results)
+    print(f"B+-tree populated with 15,000 rows in {end_time - start_time:.2f} seconds.")
