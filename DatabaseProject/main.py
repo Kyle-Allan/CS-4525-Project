@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS Temperature (
 conn.commit()
 
 
-
+'''
 # Insert data from CSV
 with open("data_15000.csv", mode="r") as file:
     reader = csv.DictReader(file)
@@ -33,8 +33,18 @@ with open("data_15000.csv", mode="r") as file:
 
 conn.commit()  # Commit changes to the database
 end_time = time.time()  # Stop the timer
+'''
 
+# Define the range
+start_time = "2024-01-01T00:00:00"
+end_time = "2024-01-02T00:10:00"
+
+# Measure query execution time
+start = time.time()
+cursor.execute("SELECT * FROM Temperature WHERE Time BETWEEN ? AND ?", (start_time, end_time))
+results = cursor.fetchall()
+end = time.time()
+
+# Print the results and timing
+print(f"SQL Range Query retrieved {len(results)} rows in {end - start:.2f} seconds.")
 conn.close()
-
-# Print execution time
-print(f"SQL database populated with 15,000 unique composite combinations in {end_time - start_time:.2f} seconds.")

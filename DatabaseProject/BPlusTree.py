@@ -421,3 +421,15 @@ if __name__ == '__main__':
     end_time = time.time()  # End timing
 
     print(f"B+-tree populated with 15,000 rows in {end_time - start_time:.2f} seconds.")
+
+    # Define the range
+    start_time = datetime.fromisoformat("2024-01-01T00:00:00")
+    end_time = datetime.fromisoformat("2024-01-02T00:10:00")
+
+    # Measure query execution time
+    start = time.time()
+    results = bplustree.range_query(start_time, end_time)
+    end = time.time()
+
+    # Print the results and timing
+    print(f"B+-Tree Range Query retrieved {len(results)} rows in {end - start:} seconds.")
