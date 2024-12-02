@@ -14,6 +14,7 @@ Influenced a lot by:
 """
 from __future__ import annotations
 from math import ceil, floor
+from datetime import datetime
 
 
 class Node:
@@ -369,33 +370,54 @@ class BPlusTree(object):
         result[0::2] = lst
         return result
 
+    def range_query(self, start_key, end_key, inclusive=True):
+        """
+        Perform a range query to find all values between start_key and end_key.
+
+        Args:
+            start_key: The lower bound of the range.
+            end_key: The upper bound of the range.
+            inclusive: Whether to include the bounds in the result.
+
+        Returns:
+            A list of all values within the specified range.
+        """
+        results = []
+        node = self.get_leftmost_leaf()
+
+        while node:  # Traverse the leaf nodes
+            for i, key in enumerate(node.keys):
+                if inclusive:
+                    if start_key <= key <= end_key:
+                        results.extend(node.values[i])
+                else:
+                    if start_key < key < end_key:
+                        results.extend(node.values[i])
+            if node.keys and node.keys[-1] > end_key:
+                break
+            node = node.next_leaf
+
+        return results
+
 
 if __name__ == '__main__':
     print('Initializing B+ tree...')
     bplustree = BPlusTree(order=5)
 
-    bplustree.insert(13, 'November')
-    bplustree.insert(0, '_')
-    bplustree.insert(7, 'Hotel')
-    bplustree.insert(8, 'India')
-    bplustree.insert(5, 'Echo')
-    bplustree.insert(6, 'Golf')
-    bplustree.insert(4, 'Delta')
-    bplustree.insert(1, 'Alpha')
-    bplustree.insert(2, 'Bravo')
-    bplustree.insert(3, 'Charlie')
-    bplustree.insert(9, 'Juliet')
-    bplustree.insert(2, 'Bravo2')
-    bplustree.insert(10, 'Kilo')
-    bplustree.insert(11, 'Lima')
-    bplustree.insert(12, 'Mike')
-    bplustree.insert(17, 'Romeo')
-    bplustree.insert(14, 'Oscar')
-    bplustree.insert(15, 'Papa')
-    bplustree.insert(16, 'Quebec')
+    bplustree.insert(datetime(2024, 12, 2, 12, 0, 00), '1')
+    bplustree.insert(datetime(2024, 12, 2, 12, 1, 00), '2')
+    bplustree.insert(datetime(2024, 12, 2, 12, 2, 00), '3')
+    bplustree.insert(datetime(2024, 12, 2, 12, 3, 00), '4')
+    bplustree.insert(datetime(2024, 12, 2, 12, 4, 00), '5')
 
-    bplustree.show_bfs()
-    bplustree.show_all_data()
+    # Insert example keys and values into the B+ tree
+    bplustree.insert(datetime(2024, 12, 2, 12, 5, 00), '6')
+    bplustree.insert(datetime(2024, 12, 2, 12, 6, 00), '7')
 
-    bplustree.show_bfs()
-    bplustree.show_all_data()
+    # Perform a range query
+    start_time = datetime(2024, 12, 2, 12, 1, 00)
+    end_time = datetime(2024, 12, 2, 12, 4, 00)
+    results = bplustree.range_query(start_time, end_time)
+
+    # Display results
+    print("Range Query Results:", results)
