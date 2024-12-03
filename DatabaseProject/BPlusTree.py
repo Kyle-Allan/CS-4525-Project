@@ -400,6 +400,51 @@ class BPlusTree(object):
 
         return results
 
+    def aggregate_between_times(self, start_key, end_key, inclusive=True):
+        """
+        Compute aggregate functions (sum, average, max, min) for values in the given time range.
+
+        Args:
+            start_key: The lower bound of the range.
+            end_key: The upper bound of the range.
+            inclusive: Whether to include the bounds in the range.
+
+        Returns:
+            A dictionary containing sum, average, max, and min.
+        """
+        # Retrieve all values within the range
+        values = self.range_query(start_key, end_key, inclusive)
+
+        if not values:
+            return {
+                "sum": 0,
+                "average": None,
+                "max": None,
+                "min": None,
+                "count": 0
+            }
+
+        # Flatten the values if needed
+        if isinstance(values[0], list):
+            flattened_values = [item for sublist in values for item in sublist]
+        else:
+            flattened_values = values  # Already a flat list
+
+        # Compute aggregates
+        total = sum(flattened_values)
+        count = len(flattened_values)
+        avg = total / count if count > 0 else None
+        max_value = max(flattened_values)
+        min_value = min(flattened_values)
+
+        return {
+            "sum": total,
+            "average": avg,
+            "max": max_value,
+            "min": min_value,
+            "count": count
+        }
+
 
 if __name__ == '__main__':
     print('Initializing B+ tree...')
@@ -408,7 +453,7 @@ if __name__ == '__main__':
     bplustree = BPlusTree(order=100)
 
     # Load data from the CSV file
-    csv_file = "data_150000.csv"  # Ensure this file exists and matches your schema
+    csv_file = "data_15000.csv"  # Ensure this file exists and matches your schema
 
     with open(csv_file, mode="r") as file:
         reader = csv.DictReader(file)
@@ -424,12 +469,22 @@ if __name__ == '__main__':
 
     # Define the range
     start_time = datetime.fromisoformat("2024-01-01T00:00:00")
-    end_time = datetime.fromisoformat("2024-01-03T00:10:00")
+    end_time = datetime.fromisoformat("2024-01-03T00:00:05")
 
     # Measure query execution time
     start = time.time()
     results = bplustree.range_query(start_time, end_time)
     end = time.time()
+    print('Start time = ', start_time, ', End Time = ', end_time)
+    for x in results:
+        print(x)
+
 
     # Print the results and timing
     print(f"B+-Tree Range Query retrieved {len(results)} rows in {end - start:} seconds.")
+
+    s = time.perf_counter()
+    exact = bplustree.retrieve(datetime.fromisoformat("2024-01-01T00:00:00"))
+    e = time.perf_counter()
+    print(exact)
+    print("Exact time = ", e-s)

@@ -38,9 +38,11 @@ print(f"SQL populated with 150 000 rows in {end_time - start_time:.2f} seconds."
 
 # Search for a specific timestamp
 timestamp = '2024-01-01T02:18:12'
+s = time.perf_counter()
 cursor.execute("SELECT * FROM Temperature WHERE Time = ?", (timestamp,))
 result = cursor.fetchall()
-print('Exact Time')
+e = time.perf_counter()
+print('Exact Time ', e-s)
 print(result)
 
 # Define the range

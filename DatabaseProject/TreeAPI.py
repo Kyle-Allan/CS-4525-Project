@@ -63,5 +63,23 @@ def delete():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+
+@app.route('/aggregates', methods=['GET'])
+def aggregates():
+    try:
+        # Get the start and end times from query parameters
+        start_time = datetime.fromisoformat(request.args.get('start'))
+        end_time = datetime.fromisoformat(request.args.get('end'))
+
+        # Perform aggregate computation
+        result = bplustree.aggregate_between_times(start_time, end_time)
+
+        # Return the aggregate results
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
